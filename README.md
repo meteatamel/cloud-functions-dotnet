@@ -15,7 +15,7 @@ easiest way to deploy `HTTP` or `CloudEvent` consuming functions.
 Install the template package into the .NET tooling:
 
 ```sh
-dotnet new -i Google.Cloud.Functions.Templates::1.0.0-alpha07
+dotnet new -i Google.Cloud.Functions.Templates::1.0.0-alpha08
 ```
 
 ## HTTP Function
@@ -98,8 +98,10 @@ Create a CloudEvent function listening for PubSub messages:
 ```sh
 mkdir HelloCloudEventPubSubFunction
 cd HelloCloudEventPubSubFunction
-dotnet new gcf-untyped-event
+dotnet new gcf-event
 ```
+
+Make sure the type argument is `MessagePublishedData` to parse Pub/Sub messages.
 
 Deploy to Cloud Functions using `--trigger-topic`:
 
