@@ -124,3 +124,16 @@ See the logs:
 ```sh
 gcloud functions logs read
 ```
+
+## CloudEvent Function - Untyped
+
+Create a CloudEvent function with no type:
+
+```sh
+mkdir HelloCloudEventUntypedFunction
+cd HelloCloudEventUntypedFunction
+dotnet new gcf-untyped-event
+```
+
+This function is only parses `CloudEvent` without trying to parse the `data`.
+Deploying and triggering it depends on the type of events you will listen.
