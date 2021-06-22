@@ -1,11 +1,5 @@
 # .NET Core on Google Cloud Functions
 
-> **NOTE:**
-> The `dotnet3` runtime is currently available on an "allow
-> list" basis. Please fill in [this
-> form](https://docs.google.com/forms/d/e/1FAIpQLSe7qB5vNrgFtZZ3ZUfIwkbsDMGsA1fXY52GzmGmnhwdReHuOQ/viewform)
-> to register your interest in being part of the public alpha.
-
 ## Functions Framework
 
 [Functions Framework for
@@ -15,7 +9,7 @@ easiest way to deploy `HTTP` or `CloudEvent` consuming functions.
 Install the template package into the .NET tooling:
 
 ```sh
-dotnet new -i Google.Cloud.Functions.Templates::1.0.0-alpha08
+dotnet new -i Google.Cloud.Functions.Templates
 ```
 
 ## HTTP Function
@@ -23,10 +17,12 @@ dotnet new -i Google.Cloud.Functions.Templates::1.0.0-alpha08
 Create an HTTP function:
 
 ```sh
-mkdir HelloHttpFunction
-cd HelloHttpFunction
+mkdir HelloHttp
+cd HelloHttp
 dotnet new gcf-http
 ```
+
+Change [Function.cs](HelloHttp/Function.cs) to use logger.
 
 Deploy to Cloud Functions using `--trigger-http`:
 
@@ -34,7 +30,8 @@ Deploy to Cloud Functions using `--trigger-http`:
 gcloud functions deploy hello-http-function \
     --runtime dotnet3 \
     --trigger-http \
-    --entry-point HelloHttpFunction.Function
+    --entry-point HelloHttp.Function \
+    --allow-unauthenticated
 ```
 
 Trigger the function:
@@ -43,29 +40,32 @@ Trigger the function:
 gcloud functions call hello-http-function
 ```
 
-## CloudEvent Function - Storage
+## CloudEvent Function - GCS
 
-Create a Cloud Storage bucket:
+Create a Google Cloud Storage (GCS) bucket:
 
 ```sh
-export BUCKET_NAME="cloud-functions-bucket-$(gcloud config get-value core/project)"
+GOOGLE_CLOUD_PROJECT=$(gcloud config get-value core/project)
+BUCKET_NAME="cloud-functions-bucket-${GOOGLE_CLOUD_PROJECT}"
 gsutil mb gs://${BUCKET_NAME}
 ```
 
-Create a CloudEvent function listening for Storage events:
+Create a CloudEvent function listening for GCS events:
 
 ```sh
-mkdir HelloCloudEventStorageFunction
-cd HelloCloudEventStorageFunction
+mkdir HelloGcs
+cd HelloGcs
 dotnet new gcf-event
 ```
+
+Change [Function.cs](HelloGcs/Function.cs) to use logger.
 
 Deploy to Cloud Functions using `--trigger-event` and `trigger-resource`:
 
 ```sh
-gcloud functions deploy hello-cloudevent-storage-function \
+gcloud functions deploy hello-gcs-function \
     --runtime dotnet3 \
-    --entry-point HelloCloudEventStorageFunction.Function \
+    --entry-point HelloGcs.Function \
     --trigger-event google.storage.object.finalize \
     --trigger-resource ${BUCKET_NAME} \
     --allow-unauthenticated
@@ -81,7 +81,7 @@ gsutil cp random.txt gs://${BUCKET_NAME}
 See the logs:
 
 ```sh
-gcloud functions logs read
+gcloud functions logs read hello-gcs-function
 ```
 
 ## CloudEvent Function - PubSub
@@ -89,26 +89,27 @@ gcloud functions logs read
 Create a PubSub topic:
 
 ```sh
-export TOPIC_NAME=cloud-functions-topic
+TOPIC_NAME=cloud-functions-topic
 gcloud pubsub topics create ${TOPIC_NAME}
 ```
 
 Create a CloudEvent function listening for PubSub messages:
 
 ```sh
-mkdir HelloCloudEventPubSubFunction
-cd HelloCloudEventPubSubFunction
+mkdir HelloPubSub
+cd HelloPubSub
 dotnet new gcf-event
 ```
 
-Make sure the type argument is `MessagePublishedData` to parse Pub/Sub messages.
+Change [Function.cs](HelloPubSub/Function.cs) to use logger. Also make sure the
+type argument is `MessagePublishedData` to parse Pub/Sub messages.
 
 Deploy to Cloud Functions using `--trigger-topic`:
 
 ```sh
-gcloud functions deploy hello-cloudevent-pubsub-function \
+gcloud functions deploy hello-pubsub-function \
     --runtime dotnet3 \
-    --entry-point HelloCloudEventPubSubFunction.Function \
+    --entry-point HelloPubSub.Function \
     --trigger-topic ${TOPIC_NAME} \
     --allow-unauthenticated
 ```
@@ -116,13 +117,13 @@ gcloud functions deploy hello-cloudevent-pubsub-function \
 Trigger the function:
 
 ```sh
-gcloud pubsub topics publish ${TOPIC_NAME} --message="Hello World"
+gcloud pubsub topics publish ${TOPIC_NAME} --message="Mete"
 ```
 
 See the logs:
 
 ```sh
-gcloud functions logs read
+gcloud functions logs read hello-pubsub-function
 ```
 
 ## CloudEvent Function - Untyped
@@ -130,10 +131,37 @@ gcloud functions logs read
 Create a CloudEvent function with no type:
 
 ```sh
-mkdir HelloCloudEventUntypedFunction
-cd HelloCloudEventUntypedFunction
+mkdir HelloUntyped
+cd HelloUntyped
 dotnet new gcf-untyped-event
 ```
 
 This function is only parses `CloudEvent` without trying to parse the `data`.
-Deploying and triggering it depends on the type of events you will listen.
+Deploying and triggering it depends on the type of events you want to listen.
+
+Change [Function.cs](HelloUntyped/Function.cs) to use logger.
+
+Deploy to Cloud Functions using `--trigger-event` and `trigger-resource`:
+
+```sh
+gcloud functions deploy hello-untyped-function \
+    --runtime dotnet3 \
+    --entry-point HelloUntyped.Function \
+    --trigger-event google.storage.object.finalize \
+    --trigger-resource ${BUCKET_NAME} \
+    --allow-unauthenticated
+```
+
+Trigger the function by uploading a file:
+
+```sh
+echo "Hello from Storage" > random.txt
+gsutil cp random.txt gs://${BUCKET_NAME}
+```
+
+See the logs:
+
+```sh
+gcloud functions logs read hello-untyped-function
+```
+
