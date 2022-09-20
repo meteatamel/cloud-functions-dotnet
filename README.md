@@ -39,7 +39,7 @@ gcloud functions deploy hello-http-function \
     --entry-point HelloHttp.Function \
     --gen2 \
     --region us-central1 \
-    --runtime dotnet \
+    --runtime dotnet6 \
     --trigger-http
 ```
 
