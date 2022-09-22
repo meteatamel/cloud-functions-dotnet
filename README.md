@@ -15,6 +15,30 @@ Install the template package into the .NET tooling:
 dotnet new -i Google.Cloud.Functions.Templates
 ```
 
+## Before you begin
+
+Before you begin, enable required services:
+
+```sh
+gcloud services enable \
+  artifactregistry.googleapis.com \
+  cloudbuild.googleapis.com \
+  cloudfunctions.googleapis.com \
+  eventarc.googleapis.com \
+  run.googleapis.com
+```
+
+Grant the `pubsub.publisher` role to the Cloud Storage service account. This is
+needed for Eventarc's GCS trigger:
+
+```sh
+SERVICE_ACCOUNT="$(gsutil kms serviceaccount -p $PROJECT_ID)"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member serviceAccount:$SERVICE_ACCOUNT \
+    --role roles/pubsub.publisher
+```
+
 ## HTTP Function
 
 Create an HTTP function:
