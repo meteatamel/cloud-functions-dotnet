@@ -5,16 +5,15 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace HelloPubSub
+namespace HelloPubSub;
+
+public class Function : ICloudEventFunction<MessagePublishedData>
 {
-    public class Function : ICloudEventFunction<MessagePublishedData>
+    public Task HandleAsync(CloudEvent cloudEvent, MessagePublishedData data, CancellationToken cancellationToken)
     {
-        public Task HandleAsync(CloudEvent cloudEvent, MessagePublishedData data, CancellationToken cancellationToken)
-        {
-            var nameFromMessage = data.Message?.TextData;
-            var name = string.IsNullOrEmpty(nameFromMessage) ? "world" : nameFromMessage;
-            Console.WriteLine($"Hello {name}");
-            return Task.CompletedTask;
-        }
+        var nameFromMessage = data.Message?.TextData;
+        var name = string.IsNullOrEmpty(nameFromMessage) ? "world" : nameFromMessage;
+        Console.WriteLine($"Hello {name}");
+        return Task.CompletedTask;
     }
 }

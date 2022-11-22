@@ -2,9 +2,6 @@
 
 ## Functions Framework
 
-> **Note:** Functions Framework for .NET currently supports .NET Core 3.1. You
-> need to change the target framework of generated projects to .NET 6.0.
-
 [Functions Framework for
 .NET](https://github.com/GoogleCloudPlatform/functions-framework-dotnet) is the
 easiest way to deploy `HTTP` or `CloudEvent` consuming functions.
@@ -12,7 +9,7 @@ easiest way to deploy `HTTP` or `CloudEvent` consuming functions.
 Install the template package into the .NET tooling:
 
 ```sh
-dotnet new -i Google.Cloud.Functions.Templates
+dotnet new --install Google.Cloud.Functions.Templates::2.0.0-beta01
 ```
 
 ## Before you begin
@@ -47,12 +44,6 @@ Create an HTTP function:
 mkdir HelloHttp
 cd HelloHttp
 dotnet new gcf-http
-```
-
-Change the target framework to `net6.0` in the `.csproj` file:
-
-```xml
-<TargetFramework>net6.0</TargetFramework>
 ```
 
 Deploy to Cloud Functions using `--trigger-http`:
@@ -91,12 +82,6 @@ Create a CloudEvent function listening for GCS events:
 mkdir HelloGcs
 cd HelloGcs
 dotnet new gcf-event
-```
-
-Change the target framework to `net6.0` in the `.csproj` file:
-
-```xml
-<TargetFramework>net6.0</TargetFramework>
 ```
 
 Deploy to Cloud Functions using `--trigger-event` and `trigger-resource`:
@@ -144,12 +129,6 @@ cd HelloPubSub
 dotnet new gcf-event
 ```
 
-Change the target framework to `net6.0` in the `.csproj` file:
-
-```xml
-<TargetFramework>net6.0</TargetFramework>
-```
-
 Change [Function.cs](HelloPubSub/Function.cs) to make sure the
 type argument is `MessagePublishedData` to parse Pub/Sub messages.
 
@@ -191,12 +170,6 @@ dotnet new gcf-untyped-event
 
 This function is only parses `CloudEvent` without trying to parse the `data`.
 Deploying and triggering it depends on the type of events you want to listen.
-
-Change the target framework to `net6.0` in the `.csproj` file:
-
-```xml
-<TargetFramework>net6.0</TargetFramework>
-```
 
 Deploy to Cloud Functions using `--trigger-event` and `trigger-resource`:
 
